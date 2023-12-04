@@ -24,7 +24,18 @@ def validateGame(game):
             if int(num) > LIMITS[color]:
                 return False
     return True
-        
+
+def minViableGame(game):
+    mins = {"red": 0, "green": 0, "blue": 0}
+    for hint in game.split(";"):
+        for color_hint in hint.split(","):
+            num, color = color_hint.split()
+            if int(num) > mins[color]:
+                mins[color] = int(num)
+    power = 1
+    for num in mins.values():
+        power *= num
+    return power
 
 def main(input_file_name, part):
     lines = []
@@ -34,16 +45,25 @@ def main(input_file_name, part):
     
     # Verify valid games based on maximum cube limits
     valid_games = []
+    powers = []
 
     for line in lines:
         x = re.search(r"^Game (\d+):\s+(.*)$", line)
         game_id = int( x.group(1) )
         hint_text = x.group(2)
-        is_valid = validateGame(hint_text)
-        if is_valid:
-            valid_games.append(game_id)
+
+        if part == 1:
+            is_valid = validateGame(hint_text)
+            if is_valid:
+                valid_games.append(game_id)
+        else:
+            power = minViableGame(hint_text)
+            powers.append(power)
     
-    print(f"The sum of each calibration value is {sum(valid_games)}")
+    if part == 1:
+        print(f"The sum of each calibration value is {sum(valid_games)}")
+    else:
+        print(f"The sum of the power of each minimum viable game is {sum(powers)}")
 
 if __name__ == "__main__":
     # Check args:
