@@ -1,6 +1,14 @@
 #! /usr/bin/env python3
 
 import sys, os
+import re
+
+# GLOBALS
+LIMITS = {
+    "red": 12,
+    "green": 13,
+    "blue": 14
+}
 
 def usage():
     print(f"Usage: {sys.argv[0]} -p [PART_NUMBER] [INPUT_FILE]")
@@ -8,16 +16,34 @@ def usage():
     print("\t-p\tEither 1 or 2 for the part")
     print("\t-h\tPrint this help message\n")
 
+
+def validateGame(game):
+    for hint in game.split(";"):
+        for color_hint in hint.split(","):
+            num, color = color_hint.split()
+            if int(num) > LIMITS[color]:
+                return False
+    return True
+        
+
 def main(input_file_name, part):
     lines = []
     # Read lines from input
     with open(input_file_name) as input_file:
         lines = input_file.readlines()
     
-    # Collect calibration values
-    total = 0
+    # Verify valid games based on maximum cube limits
+    valid_games = []
+
+    for line in lines:
+        x = re.search(r"^Game (\d+):\s+(.*)$", line)
+        game_id = int( x.group(1) )
+        hint_text = x.group(2)
+        is_valid = validateGame(hint_text)
+        if is_valid:
+            valid_games.append(game_id)
     
-    print(f"The sum of each calibration value is {total}")
+    print(f"The sum of each calibration value is {sum(valid_games)}")
 
 if __name__ == "__main__":
     # Check args:
