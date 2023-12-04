@@ -12,7 +12,7 @@ LIMITS = {
 
 def usage():
     print(f"Usage: {sys.argv[0]} -p [PART_NUMBER] [INPUT_FILE]")
-    print("Find the sum of each calibration value.\n")
+    print("Find the sum of each valid game ID or the sum of the \"power\" of each minimum viable game.\n")
     print("\t-p\tEither 1 or 2 for the part")
     print("\t-h\tPrint this help message\n")
 
