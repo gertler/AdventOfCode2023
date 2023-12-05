@@ -18,19 +18,31 @@ def main(input_file_name, part):
         lines = input_file.readlines()
 
     points = []
+    cards_won = []
     for line in lines:
         x = re.search(r"Card\s+(\d+):(.*)\|(.*)$", line)
         card_num = x.group(1)
         winning = [int(n) for n in x.group(2).strip().split()]
         nums = [int(n) for n in x.group(3).strip().split()]
-        score = 0
+        matches = 0
         for n in winning:
             if n in nums:
-                score = 1 if score == 0 else score * 2
-        points.append(score)
+                matches += 1
+        cards_won.append(matches)
+        points.append(0 if matches == 0 else 1 << (matches - 1))
     
+    horde = [1] * len(cards_won)
+    if part == 2:
+        for i in range(len(cards_won)):
+            w = cards_won[i]
+            # Increment N times, for each copy in your horde
+            num_copies = horde[i]
+            horde[i+1:i+1+w] = [ x + num_copies for x in horde[i+1:i+1+w] ]
+
     if part == 1:
         print(f"The sum of points on every scratchcard is {sum(points)}")
+    else:
+        print(f"The sum of original scratchcards plus copies is {sum(horde)}")
 
 
 if __name__ == "__main__":
