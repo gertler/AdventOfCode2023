@@ -12,12 +12,20 @@ def usage():
     print("\t-h\tPrint this help message\n")
 
 
-def part1(lines):
-    # Get initial seeds
-    x = re.search(r"seeds: (.*)$", lines[0])
-    seeds = [int(s) for s in x.group(1).split()]
+def part1(times, distances):
+    ways2win = [0] * len(times)
+
+    for i in range(len(ways2win)):
+        secs = times[i]
+        for j in range(secs):
+            if j * (secs - j) > distances[i]:
+                ways2win[i] += 1
     
-    print(f"The lowest location number that maps to any of the given seeds is {""}")
+    print(f"The number of ways to win in each race is {ways2win}.")
+    product = 1
+    for way in ways2win:
+        product *= way
+    print(f"The product of all these numbers is {product}.")
 
 
 def main(input_file_name, part):
@@ -25,9 +33,15 @@ def main(input_file_name, part):
     # Read lines from input
     with open(input_file_name) as input_file:
         lines = input_file.readlines()
+    
+    x = re.search(r"Time:\s+(.*)$", lines[0])
+    times = [int(s) for s in x.group(1).split()]
+
+    x = re.search(r"Distance:\s+(.*)$", lines[1])
+    distances = [int(s) for s in x.group(1).split()]
 
     if part == 1:
-        part1(lines)
+        part1(times, distances)
     else:
         pass
 
