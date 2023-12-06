@@ -7,7 +7,7 @@ import re
 def usage():
     print(f"Usage: {sys.argv[0]} -p [PART_NUMBER] [INPUT_FILE]")
     print("Part 1: Determines the number of ways you can beat the record in each race.")
-    print("Part 2:\n")
+    print("Part 2: Determines the number of ways you can beat the record in the one really long race.\n")
     print("\t-p\tEither 1 or 2 for the part")
     print("\t-h\tPrint this help message\n")
 
@@ -21,11 +21,25 @@ def part1(times, distances):
             if j * (secs - j) > distances[i]:
                 ways2win[i] += 1
     
-    print(f"The number of ways to win in each race is {ways2win}.")
+    print(f"The number of ways to win in each race is {ways2win}")
     product = 1
     for way in ways2win:
         product *= way
-    print(f"The product of all these numbers is {product}.")
+    print(f"The product of all these numbers is {product}")
+
+
+def part2(times, distances):
+    ways2win = 0
+
+    # Fix the "bad kerning"
+    time = int( "".join(map(str, times)) )
+    distance = int( "".join(map(str, distances)) )
+
+    for i in range(time):
+        if i * (time - i) > distance:
+            ways2win += 1
+    
+    print(f"The number of ways to win in the long race is {ways2win}")
 
 
 def main(input_file_name, part):
@@ -43,7 +57,7 @@ def main(input_file_name, part):
     if part == 1:
         part1(times, distances)
     else:
-        pass
+        part2(times, distances)
 
 if __name__ == "__main__":
     # Check args:
