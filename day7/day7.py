@@ -13,7 +13,10 @@ def usage():
 
 
 class CamelHand():
-    def __init__(self, hand, bid):
+    def __init__(self, hand, bid, part):
+        # Adding part here so hand type and comparisons can be done with Jokers in part 2
+        self.part = part
+
         self.hand = hand
         self.bid = bid
         freq = {}
@@ -23,7 +26,13 @@ class CamelHand():
         self.type = self._handType()
     
     def __lt__(self, other):
-        order = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
+        # Card strength, based on whether Jokers exist or not
+        order = ["2", "3", "4", "5", "6", "7", "8", "9", "T", "Q", "K", "A"]
+        if self.part == 1:
+            order.insert(9, "J")
+        else:
+            order.insert(0, "J")
+        
         if self.type != other.type:
             return self.type < other.type
         for i in range(len(self.hand)):
@@ -37,30 +46,41 @@ class CamelHand():
     def __eq__(self, other):
         return self.hand == other.hand
     
+    def __repr__(self) -> str:
+        types = ["high card", "one pair", "two pair", "three of a kind", "full house", "four of a kind", "five of a kind"]
+        return f"{self.hand}, {types[self.type]}"
+    
     def _handType(self):
         types = {"high": 0, "one": 1, "two": 2, "three": 3, "full": 4, "four": 5, "five": 6}
 
+        has_jokers = False
+        jokers_count = 0
+        if self.part == 2 and "J" in self.freq.keys():
+            jokers_count = self.freq["J"]
+            has_jokers = jokers_count > 0
+
+        result = 0
+
         if len(self.freq.keys()) == 5:
-            self.typeStr = "high card"
-            return types["high"]
+            result = types["one"] if has_jokers else types["high"]
         elif len(self.freq.keys()) == 1:
-            self.typeStr = "five of a kind"
-            return types["five"]
+            result = types["five"]
         elif 4 in self.freq.values():
-            self.typeStr = "four of a kind"
-            return types["four"]
+            result = types["five"] if has_jokers else types["four"]
         elif len(self.freq.keys()) == 2:
-            self.typeStr = "full house"
-            return types["full"]
+            result = types["five"] if has_jokers else types["full"]
         elif 3 in self.freq.values():
-            self.typeStr = "three of a kind"
-            return types["three"]
+            result = types["four"] if has_jokers else types["three"]
         elif len(self.freq.keys()) == 3:
-            self.typeStr = "two pair"
-            return types["two"]
+            result = types["two"]
+            if jokers_count == 1:
+                result = types["full"]
+            elif jokers_count == 2:
+                result = types["four"]
         else:
-            self.typeStr = "one pair"
-            return types["one"]
+            result = types["three"] if has_jokers else types["one"]
+        
+        return result
 
 
 def main(input_file_name, part):
@@ -74,7 +94,7 @@ def main(input_file_name, part):
         x = re.search(r"(\w*) (\d+)", line)
         hand = x.group(1)
         bid = int(x.group(2))
-        camel = CamelHand(hand, bid)
+        camel = CamelHand(hand, bid, part)
         camel_hands.append(camel)
     
     camel_hands.sort()
@@ -83,8 +103,7 @@ def main(input_file_name, part):
     for i in range(len(camel_hands)):
         winnings += (i + 1) * camel_hands[i].bid
 
-    if part == 1:
-        print(f"The total winnings are {winnings}")
+    print(f"The total winnings are {winnings}")
 
 if __name__ == "__main__":
     # Check args:
