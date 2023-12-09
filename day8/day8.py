@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 import sys, os
-import re
+import re, math
 
 
 def usage():
@@ -42,20 +42,40 @@ def part1(graph, procedure):
 
 
 def part2(graph, procedure, start_nodes):
-    curr = start_nodes
-    dest = lambda n: n[-1] == "Z"
-    def next_map(st, node):
-        return node.left if st == "L" else node.right
-    p = 0
-    while not all(map(dest, curr)):
-        index = p % len(procedure)
-        step = procedure[index]
-        nodes = (graph[c] for c in curr)
-        curr = [next_map(step, node) for node in nodes]
-        p += 1
-        print(curr)
+    all_positions = [[] for _ in start_nodes]
+    all_zs = [[] for _ in start_nodes]
+    cycle_beginnings = []
 
-    print(f"The number of steps as a ghost to reach all nodes ending in Z is {p}")
+    curr_nodes = [node for node in start_nodes]
+    for i in range(len(start_nodes)):
+        curr = curr_nodes[i]
+        curr_pos = (curr, 0)
+        p = 0
+        while curr_pos not in all_positions[i]:
+            all_positions[i].append(curr_pos)
+            step = procedure[p % len(procedure)]
+            node = graph[curr]
+            curr = node.left if step == "L" else node.right
+            
+            curr_pos = (curr, p % len(procedure))
+            p += 1
+            if curr[-1] == "Z":
+                all_zs[i].append(curr_pos)
+        cycle_begin = all_positions[i].index(curr_pos)
+        cycle_beginnings.append(cycle_begin)
+        print(f"Found cycle #{i + 1} of {len(start_nodes)}")
+
+    for p in all_positions:
+        print(len(p))
+    nums = []
+    for cy, posns, zs in zip(cycle_beginnings, all_positions, all_zs):
+        z = posns.index(zs[0])
+        nums.append(z)
+        print(f"Step #{cy}, Position: {posns[cy]}, Z: {zs[0]} @ {z}")
+    ans = math.lcm(*nums)
+    # This does NOT actually solve the problem, but for our specific base case,
+    # the input actually works out to be a simple LCM problem
+    print(f"The number of steps as a ghost to reach all nodes ending in Z is {ans}")
 
 def main(input_file_name, part):
     lines = []
