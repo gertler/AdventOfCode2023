@@ -6,8 +6,8 @@ import re
 
 def usage():
     print(f"Usage: {sys.argv[0]} -p [PART_NUMBER] [INPUT_FILE]")
-    print("Part 1: ")
-    print("Part 2: \n")
+    print("Part 1: Determine the sum of each extrapolated value from each history.")
+    print("Part 2: Determine the sum of each extrapolated value, going backwards.\n")
     print("\t-p\tEither 1 or 2 for the part")
     print("\t-h\tPrint this help message\n")
 
@@ -18,8 +18,30 @@ def main(input_file_name, part):
     with open(input_file_name) as input_file:
         lines = input_file.readlines()
     
+    sums = []
+    sums2 = []
+    for line in lines:
+        vals = map( int, line.strip().split() )
+        diffs = [list(vals)]
+        while True:
+            curr = diffs[-1]
+            diff = [curr[i+1] - curr[i] for i in range(len(curr) - 1)]
+            diffs.append(diff)
+            if len(set(diff)) == 1:
+                break
+    
+        s = sum(x[-1] for x in diffs)
+        s2 = 0
+        for diff in diffs[::-1]:
+            s2 = diff[0] - s2
+        sums2.append(s2)
+        sums.append(s)
 
-    print(f"The total winnings are {0}")
+    if part == 1:
+        print(f"The sum of the extrapolated values is {sum(sums)}")
+    else:
+        print(f"The sum of the extrapolated values is {sum(sums2)}")
+
 
 if __name__ == "__main__":
     # Check args:
